@@ -1,0 +1,6 @@
+@Jaahub_HostAddress = http://localhost:5258
+
+GET {{Jaahub_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
