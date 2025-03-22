@@ -1,5 +1,6 @@
 ﻿using Jaahub.Data;
 using Jaahub.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -38,6 +39,7 @@ namespace Jaahub.Controllers
         }
 
         // POST: api/categories
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(Category category)
         {
@@ -48,6 +50,7 @@ namespace Jaahub.Controllers
         }
 
         // PUT: api/categories/{id}
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCategory(Guid id, Category category)
         {
@@ -63,6 +66,7 @@ namespace Jaahub.Controllers
         }
 
         // DELETE: api/categories/{id}
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {

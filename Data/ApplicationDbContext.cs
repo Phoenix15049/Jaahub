@@ -21,72 +21,66 @@ namespace Jaahub.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // ✅ حل مشکل Multiple Cascade Paths در Messages
             modelBuilder.Entity<Message>()
                 .HasOne(m => m.Sender)
                 .WithMany()
                 .HasForeignKey(m => m.SenderId)
-                .OnDelete(DeleteBehavior.SetNull); // اگر فرستنده حذف شد، مقدار NULL شود
+                .OnDelete(DeleteBehavior.SetNull); 
 
             modelBuilder.Entity<Message>()
                 .HasOne(m => m.Receiver)
                 .WithMany()
                 .HasForeignKey(m => m.ReceiverId)
-                .OnDelete(DeleteBehavior.NoAction); // اگر گیرنده حذف شد، پیام باقی بماند
+                .OnDelete(DeleteBehavior.NoAction); 
 
             modelBuilder.Entity<Message>()
                 .HasOne(m => m.Property)
                 .WithMany()
                 .HasForeignKey(m => m.PropertyId)
-                .OnDelete(DeleteBehavior.NoAction); // حذف ملک باعث حذف پیام‌ها نشود
+                .OnDelete(DeleteBehavior.NoAction); 
 
-            // ✅ حل مشکل Multiple Cascade Paths در Favorites
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.Property)
                 .WithMany()
                 .HasForeignKey(f => f.PropertyId)
-                .OnDelete(DeleteBehavior.NoAction); // اگر ملک حذف شد، تاثیری روی علاقه‌مندی‌ها نداشته باشد
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.User)
                 .WithMany()
                 .HasForeignKey(f => f.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // حذف کاربر باعث حذف علاقه‌مندی‌هایش می‌شود
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // ✅ حل مشکل Multiple Cascade Paths در Rentals
             modelBuilder.Entity<Rental>()
                 .HasOne(r => r.Property)
                 .WithMany()
                 .HasForeignKey(r => r.PropertyId)
-                .OnDelete(DeleteBehavior.SetNull); // اگر ملک حذف شد، مقدار PropertyId به NULL شود
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Rental>()
                 .HasOne(r => r.Renter)
                 .WithMany()
                 .HasForeignKey(r => r.RenterId)
-                .OnDelete(DeleteBehavior.NoAction); // حذف کاربر تاثیری روی رزروهای او ندارد
+                .OnDelete(DeleteBehavior.NoAction); 
 
-            // ✅ حل مشکل حذف ملک در PropertyViews
             modelBuilder.Entity<PropertyView>()
                 .HasOne(pv => pv.Property)
                 .WithMany()
                 .HasForeignKey(pv => pv.PropertyId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // ✅ حل مشکل Multiple Cascade Paths در Reviews
             modelBuilder.Entity<Review>()
                 .HasOne(r => r.Property)
                 .WithMany()
                 .HasForeignKey(r => r.PropertyId)
-                .OnDelete(DeleteBehavior.SetNull); // اگر ملک حذف شد، مقدار PropertyId به NULL شود
+                .OnDelete(DeleteBehavior.SetNull); 
 
             modelBuilder.Entity<Review>()
                 .HasOne(r => r.User)
                 .WithMany()
                 .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.NoAction); // حذف کاربر تاثیری روی نظراتش ندارد
+                .OnDelete(DeleteBehavior.NoAction); 
 
-            // ✅ حل مشکل حذف ملک در Transactions
             modelBuilder.Entity<Transaction>()
                 .HasOne(t => t.Property)
                 .WithMany()
@@ -99,7 +93,6 @@ namespace Jaahub.Data
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // ✅ مشخص کردن دقت و مقیاس برای فیلدهای decimal
             modelBuilder.Entity<Property>()
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");
