@@ -7,6 +7,7 @@ using System.Security.Claims;
 
 namespace Jaahub.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
@@ -39,18 +40,31 @@ namespace Jaahub.Controllers
         }
 
         // POST: api/categories
-        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(Category category)
         {
+            var user = HttpContext.User;
+
+            if (user.Identity?.IsAuthenticated != true)
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            var roleClaim = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (roleClaim != "Admin")
+            {
+                return Unauthorized("User does not have admin role.");
+            }
+
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetCategory", new { id = category.Id }, category);
         }
 
+
         // PUT: api/categories/{id}
-        [Authorize(Roles = "Admin")]
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCategory(Guid id, Category category)
         {
@@ -66,7 +80,7 @@ namespace Jaahub.Controllers
         }
 
         // DELETE: api/categories/{id}
-        [Authorize(Roles = "Admin")]
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
