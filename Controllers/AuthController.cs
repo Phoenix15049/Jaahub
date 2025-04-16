@@ -1,5 +1,6 @@
 ﻿using Jaahub.Data;
 using Jaahub.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -61,7 +62,7 @@ namespace Jaahub.Controllers
 
             var token = GenerateJwtToken(user);
 
-            return Ok(new JwtToken { Token = token, Expiration = DateTime.UtcNow.AddHours(1) });
+            return Ok(token);
         }
 
         private string ComputeSha256Hash(string rawData)
@@ -117,7 +118,14 @@ namespace Jaahub.Controllers
             return jwtToken;
         }
 
+        [Authorize]
+        [HttpGet("authe")]
+        public async Task<IActionResult> authe()
+        {
+            
 
+            return Ok("you are authe");
+        }
 
     }
 }
