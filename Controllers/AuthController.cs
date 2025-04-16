@@ -107,6 +107,7 @@ namespace Jaahub.Controllers
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(24),
                 signingCredentials: creds
+               
             );
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -122,9 +123,9 @@ namespace Jaahub.Controllers
         [HttpGet("authe")]
         public async Task<IActionResult> authe()
         {
-            
-
-            return Ok("you are authe");
+            var identity = User.Identity as ClaimsIdentity;
+            var claims = identity?.Claims.Select(c => new { c.Type, c.Value }).ToList();
+            return Ok(new { Message = "You are authenticated", Claims = claims });
         }
 
     }
