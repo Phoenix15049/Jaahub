@@ -119,7 +119,7 @@ namespace Jaahub.Controllers
             return jwtToken;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet("authe")]
         public async Task<IActionResult> authe()
         {
