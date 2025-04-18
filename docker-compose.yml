@@ -1,40 +1,18 @@
 ﻿version: '3.8'
 
 services:
-  # سرویس ASP.NET Core
   jaahub-api:
     build:
       context: .
       dockerfile: Dockerfile
-    image: jaahub-api
     ports:
-      - "8080:8080"
+      - "8080:8080" 
       - "8081:8081"
-    depends_on:
-      - sqlserver
     environment:
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Jaahub;User=sa;Password=yourStrong!Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal\SQLEXPRESS;Database=Jaahub;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
     networks:
       - jaahub-network
-
-  # سرویس SQL Server Express
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=yourStrong!Passw0rd
-    ports:
-      - "1433:1433"
-    networks:
-      - jaahub-network
-    volumes:
-      - sqlserver-data:/var/opt/mssql
 
 networks:
   jaahub-network:
     driver: bridge
-
-volumes:
-  sqlserver-data:
-    driver: local
