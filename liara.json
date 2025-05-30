@@ -4,5 +4,8 @@
   "build": {
     "location": "iran"
   },
+  "dotnet":{
+    "version": "9.0"
+  },
   "disks": []
 }
