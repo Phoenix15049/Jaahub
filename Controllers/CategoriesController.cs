@@ -20,6 +20,7 @@ namespace Jaahub.Controllers
         }
 
         // GET: api/categories
+        [Authorize(Roles = "User")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
