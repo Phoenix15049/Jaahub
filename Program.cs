@@ -57,9 +57,12 @@ if (app.Environment.IsDevelopment())
 app.MapScalarApiReference();
 app.MapOpenApi();
 
-app.UseCors("AllowFrontend");
 
 app.UseRouting();
+
+app.UseCors("AllowAll");
+
+
 app.UseHttpsRedirection();
 app.UseAuthentication(); 
 app.UseAuthorization();
