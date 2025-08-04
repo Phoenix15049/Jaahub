@@ -1,4 +1,5 @@
 ﻿using Jaahub.Data;
+using Jaahub.Dtos.Rentals;
 using Jaahub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -46,22 +47,32 @@ namespace Jaahub.Controllers
             return rental;
         }
 
-        // POST: api/rentals
         [HttpPost]
-        public async Task<ActionResult<Rental>> PostRental(Rental rental)
+        public async Task<IActionResult> CreateRental([FromBody] CreateRentalDto dto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            var property = await _context.Properties.FindAsync(dto.PropertyId);
+            var renter = await _context.Users.FindAsync(dto.RenterId);
 
-            rental.RenterId = Guid.Parse(userId);
-            rental.CreatedAt = DateTime.UtcNow;
+            if (property == null || renter == null)
+                return BadRequest("Invalid PropertyId or RenterId");
+
+            var rental = new Rental
+            {
+                Id = Guid.NewGuid(),
+                PropertyId = dto.PropertyId,
+                RenterId = dto.RenterId,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
+                Status = dto.Status,
+                TotalPrice = (decimal)dto.TotalPrice,
+                CreatedAt = DateTime.UtcNow
+            };
+
             _context.Rentals.Add(rental);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRental", new { id = rental.Id }, rental);
+            return Ok(rental);
         }
+
     }
 }

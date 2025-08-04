@@ -1,4 +1,5 @@
 ﻿using Jaahub.Data;
+using Jaahub.Dtos.Messages;
 using Jaahub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -52,20 +53,29 @@ namespace Jaahub.Controllers
 
         // POST: api/messages
         [HttpPost]
-        public async Task<ActionResult<Message>> PostMessage(Message message)
+        public async Task<IActionResult> Create([FromBody] CreateMessageDto dto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            var sender = await _context.Users.FindAsync(dto.SenderId);
+            var receiver = await _context.Users.FindAsync(dto.ReceiverId);
+            var property = await _context.Properties.FindAsync(dto.PropertyId);
 
-            message.SenderId = Guid.Parse(userId);
-            message.CreatedAt = DateTime.UtcNow;
+            if (sender == null || receiver == null || property == null)
+                return BadRequest("Invalid SenderId, ReceiverId, or PropertyId");
+
+            var message = new Message
+            {
+                Id = Guid.NewGuid(),
+                SenderId = dto.SenderId,
+                ReceiverId = dto.ReceiverId,
+                PropertyId = dto.PropertyId,
+                MessageText = dto.MessageText,
+                CreatedAt = DateTime.UtcNow
+            };
+
             _context.Messages.Add(message);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMessage", new { id = message.Id }, message);
+            return Ok(message);
         }
     }
 }

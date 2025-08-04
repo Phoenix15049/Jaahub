@@ -1,4 +1,5 @@
 ﻿using Jaahub.Data;
+using Jaahub.Dtos.PropertyImages;
 using Jaahub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,24 +28,24 @@ namespace Jaahub.Controllers
 
         // POST: api/propertyimages
         [HttpPost]
-        public async Task<ActionResult<PropertyImage>> PostPropertyImage(PropertyImage propertyImage)
+        public async Task<IActionResult> Create([FromBody] CreatePropertyImageDto dto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            var property = await _context.Properties.FindAsync(dto.PropertyId);
+            if (property == null)
+                return BadRequest("Invalid PropertyId");
 
-            var property = await _context.Properties.FindAsync(propertyImage.PropertyId);
-            if (property == null || property.OwnerId != Guid.Parse(userId))
+            var image = new PropertyImage
             {
-                return Forbid();
-            }
+                Id = Guid.NewGuid(),
+                PropertyId = dto.PropertyId,
+                ImageUrl = dto.ImageUrl,
+                CreatedAt = DateTime.UtcNow
+            };
 
-            _context.PropertyImages.Add(propertyImage);
+            _context.PropertyImages.Add(image);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPropertyImages", new { propertyId = propertyImage.PropertyId }, propertyImage);
+            return Ok(image);
         }
 
         // DELETE: api/propertyimages/{id}

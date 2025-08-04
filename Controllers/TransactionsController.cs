@@ -1,4 +1,5 @@
 ﻿using Jaahub.Data;
+using Jaahub.Dtos.Transactions;
 using Jaahub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -49,20 +50,44 @@ namespace Jaahub.Controllers
 
         // POST: api/transactions
         [HttpPost]
-        public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction)
+        public async Task<IActionResult> Create([FromBody] CreateTransactionDto dto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
+            var user = await _context.Users.FindAsync(dto.UserId);
+            if (user == null)
+                return BadRequest("Invalid UserId");
+
+            Property property = null;
+            if (dto.PropertyId.HasValue)
             {
-                return Unauthorized();
+                property = await _context.Properties.FindAsync(dto.PropertyId.Value);
+                if (property == null)
+                    return BadRequest("Invalid PropertyId");
             }
 
-            transaction.UserId = Guid.Parse(userId);
-            transaction.CreatedAt = DateTime.UtcNow;
+            Rental rental = null;
+            if (dto.RentalId.HasValue)
+            {
+                rental = await _context.Rentals.FindAsync(dto.RentalId.Value);
+                if (rental == null)
+                    return BadRequest("Invalid RentalId");
+            }
+
+            var transaction = new Transaction
+            {
+                Id = Guid.NewGuid(),
+                UserId = dto.UserId,
+                PropertyId = dto.PropertyId,
+                RentalId = dto.RentalId,
+                Amount = (decimal)dto.Amount,
+                PaymentMethod = dto.PaymentMethod,
+                Status = dto.Status,
+                CreatedAt = DateTime.UtcNow
+            };
+
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTransaction", new { id = transaction.Id }, transaction);
+            return Ok(transaction);
         }
     }
 }

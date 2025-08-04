@@ -1,4 +1,5 @@
 ﻿using Jaahub.Data;
+using Jaahub.Dtos.Properties;
 using Jaahub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -40,19 +41,39 @@ namespace Jaahub.Controllers
 
         // POST: api/properties
         [HttpPost]
-        public async Task<ActionResult<Property>> PostProperty(Property property)
+        public async Task<IActionResult> Create([FromBody] CreatePropertyDto dto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            var owner = await _context.Users.FindAsync(dto.OwnerId);
+            var category = await _context.Categories.FindAsync(dto.CategoryId);
 
-            property.OwnerId = Guid.Parse(userId);
+            if (owner == null || category == null)
+                return BadRequest("Invalid OwnerId or CategoryId");
+
+            var property = new Property
+            {
+                Id = Guid.NewGuid(),
+                Title = dto.Title,
+                Description = dto.Description,
+                Price = (decimal)dto.Price,
+                PropertyType = dto.PropertyType,
+                Address = dto.Address,
+                City = dto.City,
+                State = dto.State,
+                Country = dto.Country,
+                Latitude = dto.Latitude,
+                Longitude = dto.Longitude,
+                Bedrooms = dto.Bedrooms,
+                Bathrooms = dto.Bathrooms,
+                SquareMeters = dto.SquareMeters,
+                OwnerId = dto.OwnerId,
+                CategoryId = dto.CategoryId,
+                CreatedAt = DateTime.UtcNow
+            };
+
             _context.Properties.Add(property);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProperty", new { id = property.Id }, property);
+            return Ok(property);
         }
 
         // PUT: api/properties/{id}

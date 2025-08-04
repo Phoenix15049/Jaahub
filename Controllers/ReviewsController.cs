@@ -1,4 +1,5 @@
 ﻿using Jaahub.Data;
+using Jaahub.Dtos.Reviews;
 using Jaahub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,20 +29,28 @@ namespace Jaahub.Controllers
 
         // POST: api/reviews
         [HttpPost]
-        public async Task<ActionResult<Review>> PostReview(Review review)
+        public async Task<IActionResult> Create([FromBody] CreateReviewDto dto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            var user = await _context.Users.FindAsync(dto.UserId);
+            var property = await _context.Properties.FindAsync(dto.PropertyId);
 
-            review.UserId = Guid.Parse(userId);
-            review.CreatedAt = DateTime.UtcNow;
+            if (user == null || property == null)
+                return BadRequest("Invalid UserId or PropertyId");
+
+            var review = new Review
+            {
+                Id = Guid.NewGuid(),
+                PropertyId = dto.PropertyId,
+                UserId = dto.UserId,
+                Rating = dto.Rating,
+                Comment = dto.Comment,
+                CreatedAt = DateTime.UtcNow
+            };
+
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetReviews", new { propertyId = review.PropertyId }, review);
+            return Ok(review);
         }
 
         // DELETE: api/reviews/{id}

@@ -1,4 +1,5 @@
 ﻿using Jaahub.Data;
+using Jaahub.Dtos.PropertyViews;
 using Jaahub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,20 +27,32 @@ namespace Jaahub.Controllers
 
         // POST: api/propertyviews
         [HttpPost]
-        public async Task<ActionResult<PropertyView>> PostPropertyView(PropertyView propertyView)
+        public async Task<IActionResult> Create([FromBody] CreatePropertyViewDto dto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
+            var property = await _context.Properties.FindAsync(dto.PropertyId);
+            if (property == null)
+                return BadRequest("Invalid PropertyId");
+
+            User? user = null;
+            if (dto.UserId.HasValue)
             {
-                return Unauthorized();
+                user = await _context.Users.FindAsync(dto.UserId.Value);
+                if (user == null)
+                    return BadRequest("Invalid UserId");
             }
 
-            propertyView.UserId = Guid.Parse(userId);
-            propertyView.ViewedAt = DateTime.UtcNow;
-            _context.PropertyViews.Add(propertyView);
+            var view = new PropertyView
+            {
+                Id = Guid.NewGuid(),
+                PropertyId = dto.PropertyId,
+                UserId = dto.UserId,
+                ViewedAt = DateTime.UtcNow
+            };
+
+            _context.PropertyViews.Add(view);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPropertyViews", new { propertyId = propertyView.PropertyId }, propertyView);
+            return Ok(view);
         }
 
         // DELETE: api/propertyviews/{id}

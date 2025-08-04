@@ -1,4 +1,5 @@
 ﻿using Jaahub.Data;
+using Jaahub.Dtos.Favorites;
 using Jaahub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,19 +35,26 @@ namespace Jaahub.Controllers
 
         // POST: api/favorites
         [HttpPost]
-        public async Task<ActionResult<Favorite>> PostFavorite(Favorite favorite)
+        public async Task<IActionResult> Create([FromBody] CreateFavoriteDto dto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            var user = await _context.Users.FindAsync(dto.UserId);
+            var property = await _context.Properties.FindAsync(dto.PropertyId);
 
-            favorite.UserId = Guid.Parse(userId);
+            if (user == null || property == null)
+                return BadRequest("Invalid UserId or PropertyId");
+
+            var favorite = new Favorite
+            {
+                Id = Guid.NewGuid(),
+                UserId = dto.UserId,
+                PropertyId = dto.PropertyId,
+                CreatedAt = DateTime.UtcNow
+            };
+
             _context.Favorites.Add(favorite);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetFavorites", new { id = favorite.Id }, favorite);
+            return Ok(favorite);
         }
 
         // DELETE: api/favorites/{id}
