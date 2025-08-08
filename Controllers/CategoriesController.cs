@@ -41,7 +41,6 @@ namespace Jaahub.Controllers
         }
 
         // POST: api/categories
-        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(Category category)
         {
@@ -82,7 +81,6 @@ namespace Jaahub.Controllers
         }
 
         // DELETE: api/categories/{id}
-        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
