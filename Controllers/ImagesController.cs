@@ -3,14 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Jaahub.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
     public class ImagesController : ControllerBase
     {
-        private readonly long _maxFileSize = 10 * 1024 * 1024; // 10MB
+        private readonly long _maxFileSize = 100 * 1024 * 1024; // 10MB
         private static readonly string[] _allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
         private const string UploadFolder = "uploads"; // زیر wwwroot
 
+        [RequestSizeLimit(10_000_000)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 10_000_000)]
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Upload([FromForm] IFormFile file)
