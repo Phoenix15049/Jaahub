@@ -7,5 +7,10 @@
   "dotnet":{
     "version": "9.0"
   },
-  "disks": []
+  "disks": [
+    {
+      "name": "mydisk",
+      "mountTo": "wwwroot/uploads"
+    }
+  ]
 }
