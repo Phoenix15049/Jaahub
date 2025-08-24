@@ -100,14 +100,6 @@ Full API documentation is available via Swagger:
 
 ---
 
-## 📸 Screenshots (Optional)
-> Add screenshots here if you have them, e.g.:
-
-![Properties Page](docs/screenshots/properties.png)
-![Profile Page](docs/screenshots/profile.png)
-
----
-
 ## 👨‍💻 Development Notes
 - Clean architecture with DTOs to separate input/output from database entities
 - AutoMapper or manual mapping between DTOs and entities
